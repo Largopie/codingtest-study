@@ -1,10 +1,10 @@
 # [unrated] 문자열의 뒤의 n글자 - 181910 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/181910) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/181910?language=javascript) 
 
 ### 성능 요약
 
-메모리: 10.3 MB, 시간: 0.00 ms
+메모리: 33.3 MB, 시간: 0.03 ms
 
 ### 구분
 
@@ -41,7 +41,7 @@ Empty
         <tbody><tr>
 <td>"ProgrammerS123"</td>
 <td>11</td>
-<td>"grammserS123"</td>
+<td>"grammerS123"</td>
 </tr>
 <tr>
 <td>"He110W0r1d"</td>
