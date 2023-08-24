@@ -6,6 +6,8 @@
 
 ### 모든 최단 경로를 구하는 알고리즘
 
+**시간복잡도 : O(N<sup>3</sup>)**
+
 **관련 문제**
 - ❓[합승 택시 요금](https://school.programmers.co.kr/learn/courses/30/lessons/72413)
 
