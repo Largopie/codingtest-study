@@ -1,25 +1,11 @@
 function solution(word) {
-    const alphabet = ['','A', 'E', 'I', 'O', 'U']
-    const len = alphabet.length
-    const dict = []
+    const dict = {'A':0, 'E':1, 'I':2, 'O':3, 'U':4}
+    const improve = [5**4, 5**3, 5**2, 5**1, 5**0]
+    let answer = 0
     
-    for(let a = 0; a < len; a++) {
-        for(let b = 0; b < len; b++) {
-            for(let c = 0; c < len; c++) {
-                for(let d = 0; d < len; d++) {
-                    for(let e = 0; e < len; e++) {
-                        const makeWord = alphabet[a]+alphabet[b]+alphabet[c]+alphabet[d]+alphabet[e]
-                        if(makeWord === '') continue
-                        dict.push(makeWord)
-                    }
-                }
-            }
-        }
+    for(let i = 0; i < word.length; i++) {
+        answer+=dict[word[i]]*improve.slice(i).reduce((a, b) => a + b) + 1
     }
     
-    const uniqueDict = [...new Set(dict)]
-    uniqueDict.sort()
-    
-    return uniqueDict.findIndex((element) => element === word)+1
+    return answer
 }
-
