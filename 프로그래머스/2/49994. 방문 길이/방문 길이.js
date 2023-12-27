@@ -24,13 +24,15 @@ function solution(dirs) {
     }
     
     for(dir of dirs) {
-        if ((dir === 'U' && -5 <= y && y <= 4) || (dir === 'D' && -4 <= y && y <= 5) || (dir === 'L' && -4 <= x && x <= 5) || (dir === 'R' && -5 <= x && x <= 4)) {
+        if ((['U', 'D'].includes(dir) && Math.abs(y) < MAX_SIZE )||(['L', 'R'].includes(dir) && Math.abs(x) < MAX_SIZE)) {
             const before = [x, y]
             move(dir)
             const after = [x, y]
             movePosition.push(sorting(before, after))
         }
     }
+    
+    console.log(movePosition)
     
     return new Set(movePosition).size
 }
