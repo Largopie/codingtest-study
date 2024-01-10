@@ -20,9 +20,7 @@ const solution = (input) => {
   const linked = input.slice(1).map((val) => val.split(' ').map((val) => Number(val)));
 
   const graph = Array.from({ length: nodeCount + 1 }, () => []);
-  const dfsVisited = Array.from({ length: nodeCount + 1 }, () => false);
-  const bfsVisited = Array.from({ length: nodeCount + 1 }, () => false);
-  const answer = [[], []];
+  const answer = [];
 
   linked.forEach(([nodeA, nodeB]) => {
     graph[nodeA].push(nodeB);
@@ -33,34 +31,36 @@ const solution = (input) => {
     linkedNode.sort((a, b) => a - b);
   });
 
-  const dfs = (graph, currentNode, willVisit) => {
-    dfsVisited[currentNode] = true;
-    answer[0].push(currentNode);
+  const dfs = (graph, startNode) => {
+    const visited = [];
+    let needVisit = [startNode];
 
-    willVisit = [...graph[currentNode], ...willVisit].filter((node) => !dfsVisited[node]);
+    while (needVisit.length) {
+      const node = needVisit.shift();
 
-    while (willVisit.length) {
-      const node = willVisit.shift();
-
-      if (!dfsVisited[node]) {
-        dfs(graph, node, willVisit);
+      if (!visited.includes(node)) {
+        visited.push(node);
+        needVisit = [...graph[node], ...needVisit];
       }
     }
+
+    answer.push(visited);
   };
 
-  const bfs = (graph, currentNode, willVisit) => {
-    bfsVisited[currentNode] = true;
-    answer[1].push(currentNode);
+  const bfs = (graph, startNode) => {
+    const visited = [];
+    let needVisit = [startNode];
 
-    willVisit = [...willVisit, ...graph[currentNode]].filter((node) => !bfsVisited[node]);
+    while (needVisit.length) {
+      const node = needVisit.shift();
 
-    while (willVisit.length) {
-      const node = willVisit.shift();
-
-      if (!bfsVisited[node]) {
-        bfs(graph, node, willVisit);
+      if (!visited.includes(node)) {
+        visited.push(node);
+        needVisit = [...needVisit, ...graph[node]];
       }
     }
+
+    answer.push(visited);
   };
 
   dfs(graph, firstNode, []);
