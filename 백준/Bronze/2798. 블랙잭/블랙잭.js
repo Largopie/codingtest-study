@@ -10,7 +10,7 @@ readline
     input.push(line.split(' ').map(Number));
   })
   .on('close', function () {
-    solution(input);
+    console.log(solution(input));
     process.exit();
   });
 
@@ -23,12 +23,15 @@ function solution(input) {
     for (let j = i + 1; j < arr.length - 1; j++) {
       for (let k = j + 1; k < arr.length; k++) {
         const num = arr[i] + arr[j] + arr[k];
-        if (num <= m) {
+
+        if (m === num) return num;
+
+        if (num < m) {
           max = Math.max(max, num);
         }
       }
     }
   }
 
-  console.log(max);
+  return max;
 }
