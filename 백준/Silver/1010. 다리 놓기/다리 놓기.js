@@ -1,29 +1,33 @@
 function solution(input) {
   const answer = [];
+  let maxM = 0;
+  let maxN = 0;
   const arr = input.slice(1);
 
   arr.forEach(([m, n]) => {
-    const counts = Array.from({ length: m + 1 }, () => Array.from({ length: n + 1 }, () => 0));
+    if (maxM < m) maxM = m;
+    if (maxN < n) maxN = n;
+  });
 
-    counts.forEach((count, m) => {
-      count.forEach((_, n) => {
-        if (n === 0 || m === 0) return;
+  const counts = Array.from({ length: maxM + 1 }, () => Array.from({ length: maxN + 1 }, () => 0));
 
-        if (n === m) {
-          counts[m][n] = 1;
-        } else if (m === 1) {
-          counts[m][n] = n;
-        } else if (n > m) {
-          let sum = 0;
+  counts.forEach((count, m) => {
+    count.forEach((_, n) => {
+      if (n === 0 || m === 0) return;
 
-          for (let i = 0; i < n; i++) {
-            sum += counts[m - 1][i];
-          }
-          counts[m][n] = sum;
-        }
-      });
+      if (n === m) {
+        counts[m][n] = 1;
+      } else if (m === 1) {
+        counts[m][n] = n;
+      } else if (n > m) {
+        const beforeCounts = counts[m - 1];
+
+        counts[m][n] = beforeCounts.slice(0, n).reduce((acc, cur) => acc + cur, 0);
+      }
     });
+  });
 
+  arr.forEach(([m, n]) => {
     answer.push(counts[m][n]);
   });
 
