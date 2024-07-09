@@ -1,9 +1,17 @@
 function solution(input) {
-  return (
-    input[1].split('').reduce((acc, cur, idx) => {
-      return acc + (cur.charCodeAt() - 96) * 31 ** idx;
-    }, 0) % 1234567891
-  );
+  const alphabet = input[1].split('');
+
+  const r = 31n;
+  const M = 1234567891n;
+
+  let result = 0n;
+
+  alphabet.forEach((char, idx) => {
+    const num = BigInt(char.charCodeAt() - 96);
+    result += num * r ** BigInt(idx);
+  });
+
+  return (result % M).toString();
 }
 
 const readline = require('readline');
