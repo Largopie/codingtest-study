@@ -11,19 +11,22 @@ if (N === 1 || new Set(arr).size === 1) {
   return;
 }
 
-for (let i = 0; i < N - 1; i++) {
-  const incompleteNumbers = [];
+const oddIndex = arr.findIndex((num) => num % 2 === 1);
+const evenIndex = arr.findIndex((num) => num % 2 === 0);
 
-  incompleteNumbers.push(arr[i]);
-  for (let j = i + 1; j < N; j++) {
-    const arrNumber = arr[j];
+const oddAnswers = oddIndex === -1 ? [] : [arr[oddIndex]];
+const evenAnswers = evenIndex === -1 ? [] : [arr[evenIndex]];
 
-    if (incompleteNumbers.at(-1) % 2 !== arrNumber % 2) {
-      incompleteNumbers.push(arrNumber);
-    }
+for (let i = oddIndex + 1; i < N; i++) {
+  if (oddAnswers.at(-1) % 2 !== arr[i] % 2) {
+    oddAnswers.push(arr[i]);
   }
-
-  max = Math.max(max, incompleteNumbers.length);
 }
 
-console.log(max);
+for (let i = evenIndex + 1; i < N; i++) {
+  if (evenAnswers.at(-1) % 2 !== arr[i] % 2) {
+    evenAnswers.push(arr[i]);
+  }
+}
+
+console.log(Math.max(evenAnswers.length, oddAnswers.length));
