@@ -9,23 +9,6 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 2 # 이전 커밋과 비교하기 위해 필요
-
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v35
-        with:
-          files: |
-            **/*.md
-
-      - name: Get Repository URL
-        id: repository-url
-        run: |
-          echo "repository-url=https://github.com/${{ github.repository }}" >> "$GITHUB_OUTPUT"
-
       - name: Send Discord notification
         uses: Ilshidur/action-discord@master
         env:
@@ -33,5 +16,4 @@ jobs:
         with:
           args: |
             🎯 새로운 알고리즘 문제를 해결했습니다!
-            변경된 파일: ${{ steps.changed-files.outputs.all_changed_files }}
-            파일 링크: ${{ steps.repository-url.outputs.repository-url }}/blob/main/${{ steps.changed-files.outputs.all_changed_files }}
+            커밋 링크: ${{github.server_url}}/${{github.repository}}/commit/${{github.sha}}
