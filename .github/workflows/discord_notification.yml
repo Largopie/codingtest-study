@@ -13,92 +13,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          fetch-depth: 2  # 이전 커밋과의 비교를 위해 필요
+          fetch-depth: 2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v35
         with:
-          python-version: '3.x'
-      
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
+          files: |
+            백준/**/*.md
+            프로그래머스/**/*.md
+
+      - name: Extract links from markdown
+        uses: mipmip/github-action-markdown-link-extract-to-json@v1.1
+        with:
+          in-file: ${{ steps.changed-files.outputs.all_changed_files }}
+          out-file: './links.json'
+
+      - name: Read extracted links
+        id: read-json
+        run: echo "::set-output name=links::$(cat ./links.json)"
 
       - name: Send Discord notification
+        uses: Ilshidur/action-discord@master
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          python3 - <<EOF
-          import os
-          import re
-          import requests
-          import json
-          from datetime import datetime
-          
-          def get_problem_info(file_path, content):
-              print(f"Processing file: {file_path}")  # 디버깅
-              parts = file_path.split('/')
-              platform = parts[0]
-              tier = parts[1]
-              problem_folder = parts[2]
-              number = problem_folder.split('.')[0]
-              
-              if platform == '백준':
-                  link_pattern = r'\[문제 링크\]\((https://www\.acmicpc\.net/problem/\d+)\)'
-              else:
-                  link_pattern = r'\[문제 링크\]\((https://programmers\.co\.kr/learn/courses/\d+/lessons/\d+)\)'
-              
-              match = re.search(link_pattern, content)
-              problem_link = match.group(1) if match else None
-              print(f"Extracted link: {problem_link}")  # 디버깅
-              
-              return {
-                  'platform': platform,
-                  'tier': tier,
-                  'number': number,
-                  'link': problem_link
-              }
-          
-          def send_discord_webhook(problem_info):
-              platform_emoji = "🎯" if problem_info['platform'] == '백준' else "💻"
-              
-              webhook_data = {
-                  "embeds": [{
-                      "title": f"{platform_emoji} 새로운 문제 해결!",
-                      "description": f"**플랫폼**: {problem_info['platform']}\n**난이도**: {problem_info['tier']}\n**문제 번호**: {problem_info['number']}\n**링크**: {problem_info['link']}",
-                      "color": 0x00ff00,
-                      "timestamp": datetime.utcnow().isoformat()
-                  }]
-              }
-              
-              try:
-                  response = requests.post(
-                      os.environ['DISCORD_WEBHOOK_URL'],
-                      json=webhook_data,
-                      headers={'Content-Type': 'application/json'}
-                  )
-                  response.raise_for_status()
-                  print(f"Discord webhook response: {response.status_code}")  # 디버깅
-                  print(f"Response content: {response.text}")  # 디버깅
-              except Exception as e:
-                  print(f"Error sending Discord webhook: {str(e)}")
-                  raise
-          
-          # 새로 추가된 파일 찾기
-          new_files = os.popen('git diff --name-only HEAD HEAD~1').read().strip().split('\n')
-          print(f"Changed files: {new_files}")  # 디버깅
-          
-          md_files = [f for f in new_files if f.endswith('README.md')]
-          print(f"Markdown files to process: {md_files}")  # 디버깅
-          
-          for md_file in md_files:
-              if os.path.exists(md_file):
-                  print(f"Reading file: {md_file}")  # 디버깅
-                  with open(md_file, 'r', encoding='utf-8') as f:
-                      content = f.read()
-                      problem_info = get_problem_info(md_file, content)
-                      
-                      if problem_info['link']:
-                          send_discord_webhook(problem_info)
-          EOF
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          args: |
+            🎯 새로운 알고리즘 문제를 해결했습니다!
+            문제 링크: ${{ steps.read-json.outputs.links }}
