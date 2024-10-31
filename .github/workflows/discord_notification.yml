@@ -1,0 +1,77 @@
+name: Problem Solving Notification
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '백준/**/*.md'
+      - '프로그래머스/**/*.md'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Send Discord notification
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          python3 - <<EOF
+          import os
+          import re
+          import requests
+          
+          def get_problem_info(file_path, content):
+              # 폴더 구조에서 정보 추출
+              parts = file_path.split('/')
+              platform = parts[0]  # '백준' 또는 '프로그래머스'
+              tier = parts[1]      # 'Bronze', 'Silver' 등
+              
+              # 문제 번호와 제목 추출
+              problem_folder = parts[2]
+              number = problem_folder.split('.')[0]
+              
+              # 문제 링크 추출
+              if platform == '백준':
+                  link_pattern = r'\[문제 링크\]\((https://www\.acmicpc\.net/problem/\d+)\)'
+                  match = re.search(link_pattern, content)
+                  problem_link = match.group(1) if match else None
+              elif platform == '프로그래머스':
+                  link_pattern = r'\[문제 링크\]\((https://programmers\.co\.kr/learn/courses/\d+/lessons/\d+)\)'
+                  match = re.search(link_pattern, content)
+                  problem_link = match.group(1) if match else None
+              
+              return {
+                  'platform': platform,
+                  'tier': tier,
+                  'number': number,
+                  'link': problem_link
+              }
+          
+          def create_discord_message(problem_info):
+              platform_emoji = "🎯" if problem_info['platform'] == '백준' else "💻"
+              return f"{platform_emoji} **{problem_info['platform']}** {problem_info['tier']} 문제를 해결했습니다!\n문제 링크: {problem_info['link']}"
+          
+          # 새로 추가된 파일 찾기
+          new_files = os.popen('git diff --name-only HEAD HEAD~1').read().strip().split('\n')
+          md_files = [f for f in new_files if f.endswith('README.md')]
+          
+          for md_file in md_files:
+              if os.path.exists(md_file):
+                  with open(md_file, 'r', encoding='utf-8') as f:
+                      content = f.read()
+                      problem_info = get_problem_info(md_file, content)
+                      
+                      if problem_info['link']:
+                          # Discord 웹훅으로 메시지 전송
+                          webhook_data = {
+                              "content": create_discord_message(problem_info)
+                          }
+                          requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=webhook_data)
+          EOF
