@@ -2,8 +2,6 @@ name: Notify Discord on Push
 on:
   push:
     branches: [main]
-    paths:
-      - '**/*.md' # markdown 파일 변경시에만 실행
 
 jobs:
   notify:
